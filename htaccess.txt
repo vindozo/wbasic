@@ -1,0 +1,7 @@
+Options -Indexes
+DirectoryIndex /wbasic.php
+<FilesMatch ".bas$">
+RewriteEngine On
+RewriteBase /
+RewriteRule . /wbasic.php [L]
+</FilesMatch>
