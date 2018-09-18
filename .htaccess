@@ -5,3 +5,7 @@ RewriteEngine On
 RewriteBase /
 RewriteRule . /wbasic.php [L]
 </FilesMatch>
+<files *.ini>
+order deny,allow
+deny from all
+</files>
