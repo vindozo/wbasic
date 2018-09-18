@@ -10,3 +10,4 @@ WBASIC работает на том же комплексе программно
 
 
 Сайт проекта с документацией - http://wbasic.ru
+или wiki - https://github.com/vindozo/wbasic/wiki/Введение
