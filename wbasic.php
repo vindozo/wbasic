@@ -3,8 +3,8 @@
     Проект: WBASIC - Акроним Web Beginner's All-purpose Symbolic Instruction Code.
             Высокоуровневый язык программирования применяемый для разработки серверных веб-приложений.
             Философия языка - это должно быть просто для начинающих.
-    Версия: 1.1 
-    Начало разработки: 24.03.2017, текущей версии: 20.04.2017, релиз текущей версии: 31.05.2017
+    Версия: 1.2 
+    Начало разработки: 24.03.2017, текущей версии: 20.09.2018, релиз текущей версии: 20.09.2018
     Лицензия: ISC
     Авторские права: (c) 2017-2027, Верига Алексей, vindozo@gmail.com
     Разрешается использование, копирование, модификация и/или распространение данного программного обеспечения для любых
@@ -24,15 +24,20 @@ error_reporting(E_ALL);
 DEFINE ('CYRILLIC',	'АӘӒӐБВГҒҐЃДЂЕЄЁӖЖӁҖӜЗҘӞИЇЙКҚҠЛЉМНЊҢҤОӨӦПРСҪТЌЋУҰЎӮӰӲФХҺҲЦЧҶЏШЩЪЫӸЬЭЮЯ' ); // полная кирилица для регулярок
 mb_internal_encoding('UTF-8'); mb_regex_encoding('UTF-8'); setlocale (LC_ALL, 'ru_RU' );
 $_WEB = array( // перепаковка массива $_SERVER, т.к. в нем очень много элементов с префиском "PHP_"
-			'URI' => $_SERVER['SCRIPT_URI'], 'SCHEME' => $_SERVER['REQUEST_SCHEME'], 'HOST' => $_SERVER['HTTP_HOST'], 'URL' => $_SERVER['SCRIPT_URL'], 'SCRIPT' => $_SERVER['SCRIPT_NAME'],
-			'SERVER' => $_SERVER['SERVER_SOFTWARE'], 'IP' => $_SERVER['REMOTE_ADDR'], 
+			'URI' => isset( $_SERVER['SCRIPT_URI'] ) ?  $_SERVER['SCRIPT_URI'] : '', 
+			'SCHEME' => isset( $_SERVER['REQUEST_SCHEME'] )? $_SERVER['REQUEST_SCHEME'] : '', 
+			'HOST' => isset( $_SERVER['HTTP_HOST'] ) ? $_SERVER['HTTP_HOST'] : '', 
+			'URL' => isset( $_SERVER['SCRIPT_URL'] ) ? $_SERVER['SCRIPT_URL'] : '',  
+			'SCRIPT' => isset($_SERVER['SCRIPT_NAME'] ) ? $_SERVER['SCRIPT_NAME'] : '',
+			'SERVER' => isset( $_SERVER['SERVER_SOFTWARE'] ) ? $_SERVER['SERVER_SOFTWARE'] : '', 
+			'IP' => isset($_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : '', 
 			'BROWSER' => isset( $_SERVER['HTTP_USER_AGENT'] ) ? $_SERVER['HTTP_USER_AGENT'] : '',
 			'LANGUAGE' => isset( $_SERVER['HTTP_ACCEPT_LANGUAGE'] ) ? $_SERVER['HTTP_ACCEPT_LANGUAGE'] : '',
 			'REFERER' => isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : '',            
 			'AUTH' => isset( $_SERVER['PHP_AUTH_DIGEST'] ) ? $_SERVER['PHP_AUTH_DIGEST'] : '', 
 			'LOGIN' => isset( $_SERVER['PHP_AUTH_USER'] )? $_SERVER['PHP_AUTH_USER'] : '', 
 			'PASSWORD' => isset( $_SERVER['PHP_AUTH_PW'] )? $_SERVER['PHP_AUTH_PW'] : '',
-			'REQUEST_TIME' => $_SERVER['REQUEST_TIME_FLOAT'], 
+			'REQUEST_TIME' => isset( $_SERVER['REQUEST_TIME_FLOAT']) ? $_SERVER['REQUEST_TIME_FLOAT'] : '', 
 		);
 $is_session_start = false; // признак старта сессии для команд работы с сессиями
 $def_key = array( // массив предопределенных функций, для переопределения функций и команды DECLARE
@@ -59,7 +64,7 @@ $script_filename = isset($_SERVER['REDIRECT_SCRIPT_URL']) ? $_SERVER['REDIRECT_S
 $include_path = __DIR__; // базовая директория, откуда ищутся все файлы
 $cache_dir = sys_get_temp_dir().'/cache_'; // директория и префикс файлов для кеширования скомпилированных программ
 $cache_cron_trash = false; // если в этой директории старые файлы автоматом удаляются, то поставте true, иначе уборкой займется wbasic
-header('X-Powered-By: WBASIC/1.0'); // заменяем заголовок с php на wbasic
+header('X-Powered-By: WBASIC/1.2'); // заменяем заголовок с php на wbasic
 $debug_line = 0; // текущая строка
 $debug_log = ''; // лог ошибок
 $debug_mode = false; // режим отладки
