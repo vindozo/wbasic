@@ -500,8 +500,9 @@ function com_compile ($file) {
                 $command = &$tree_command[$three_key]['command'];
                 $var_eq = &$tree_command[$three_key]['var_eq'];
             
-                if($command == 'REM') $php_code_string = ''; 
-                if($command == 'PRINT' || $command == '?') {
+                if($command == 'REM') {
+					$php_code_string = ''; 
+				} elseif ($command == 'PRINT' || $command == '?') {
                     if(substr($php_code_string,0,3) == 'AT(' ){
                         $php_code_string = substr($php_code_string, 2);
                         preg_match_all('/(?:[^,(]|\([^)]*\))+/', $php_code_string, $php_code_string_math);
@@ -509,123 +510,109 @@ function com_compile ($file) {
                         if( isset($php_code_string_math[0][2]) && substr($php_code_string_math[0][2],0,2) == '#$' ) $php_code_string_math[0][2] = '\'' . substr($php_code_string_math[0][2], 2) . '\'';
                         $php_code_string = 'com_text(' . $coord[1] . ',' . $php_code_string_math[0][1] . ',' . (!isset($php_code_string_math[0][2]) ? 'NULL' : $php_code_string_math[0][2] ) . ',' . (!isset($php_code_string_math[0][3]) ? 'NULL' : $php_code_string_math[0][3] ) . ',' . (!isset($php_code_string_math[0][4]) ? 'NULL' : $php_code_string_math[0][4] ). ',' . (!isset($php_code_string_math[0][5]) ? 'NULL' : $php_code_string_math[0][5] ) . ')'; 
                     } else $php_code_string = 'echo ' . $php_code_string ;
-                }
-                if($command == 'INPUT') {
+                } elseif ($command == 'INPUT') {
                     $vars = explode (',', $php_code_string);
                     if( strpos( $vars[0] , '"') !== false ) $var_source = array_shift ($vars);
                     else $var_source = '"GET"';
                     $php_code_string = 'list(' . str_replace( array('(string)', '(int)', '(float)', '(boolean)', '(array)'), '', implode(',', $vars)) . ')=com_input(' . $var_source . ",array('" . implode("','", $vars) . "'))";
-                } 
-                if($command == 'OUTPUT') {
+                } elseif ($command == 'OUTPUT') {
                     $vars = explode (',', $php_code_string);
                     if( strpos( $vars[0] , '"') !== false ) $var_source = array_shift ($vars);
                     else $var_source = '"SESSION"';
                     $php_code_string = 'com_output(' . $var_source . ($var_source != 'SESSION' ? ",array('" . implode("','", $vars) . "')," : 'array(),' ) .'array('. implode(',', $vars) . "))";
-                }
-                if(substr($command, 0 , 1 ) == '=' ) {
+                } elseif (substr($command, 0 , 1 ) == '=' ) {
                     $php_code_string =  $var_eq  
                                         . ( substr($php_code_string, 0, 1) != '=' ? '' : '=' ) 
                                         . ( str_replace( array( '$', '#', '%', '&', '@', ':' ), array('(string)(', '(int)(', '(float)(', '(boolean)(', '(array)(', ''), substr( $command, -1) ) ) 
                                         . ( substr($php_code_string, 0, 1) != '=' ? $php_code_string : substr($php_code_string, 1) )
                                         . (substr( $command, -1) == ':' ? '' : ')');
-                } 
-                if($command == 'LET') {
+                } elseif ($command == 'LET') {
                     if ( strpos( $php_code_string , '=') !== false ) $php_code_string = 'static ' . $var_eq  .  $php_code_string;
                     else $php_code_string = 'global $' .  $php_code_string;
-                } 
-
-                if($command == 'SUB') $php_code_string = 'function ' . ( strpos( $php_code_string , '(' ) === false ? $php_code_string . '()' : $php_code_string ). '{' . $var_eq . '=func_get_args()' .
+                } elseif ($command == 'SUB') {
+					$php_code_string = 'function ' . ( strpos( $php_code_string , '(' ) === false ? $php_code_string . '()' : $php_code_string ). '{' . $var_eq . '=func_get_args()' .
                     ( $debug_mode ? '/*debug_timer*/; $GLOBALS[\'debug_time\'][] = (microtime(true)-$_SERVER[\'REQUEST_TIME_FLOAT\']).":'. htmlentities($bas_code_string, ENT_QUOTES) . '";/*debug_timer*/ ' : '') ;
-                if($command == 'END') { // универсальный конец
+				} elseif ($command == 'END') { // универсальный конец
                     if($php_code_string != '' ) $php_code_string = 'return '. $php_code_string .'; }'; // специальный конец для SUB
                     else $php_code_string = '}' ;
-                }
-                if($command == 'GOSUB') { // изменяет строку кода так, чтобы можно было не декларировать подпрограммы заранее
+                } elseif ($command == 'GOSUB') { // изменяет строку кода так, чтобы можно было не декларировать подпрограммы заранее
                     $php_code_string = substr( $php_code_string, 1 ) . ( strpos( $php_code_string , '(' ) === false ? '()' : '');
-                }
-                if($command == 'RETURN') {
+                } elseif ($command == 'RETURN') {
                     $php_code_string = 'return ' . $php_code_string;
-                }
-                if($command == 'DEBUG') {
+                } elseif ($command == 'DEBUG') {
                     $vars = explode (',', $php_code_string);
                     com_debug( $vars );
                     $php_code_string = '';
-                }    
-                if($command === 'STOP') {
+                } elseif ($command === 'STOP') {
                     $vars = explode (',', $php_code_string);
                     $php_code_string = 'com_stop(array(' . implode(",", $vars) . "),array('" . implode("','", $vars) . "'))";
-                }
-                if($command === 'ERASE') {
+                } elseif ($command === 'ERASE') {
                     $php_code_string = 'unset(' . $php_code_string. ')';
-                }
-                if($command == 'INCLUDE') {
+                } elseif ($command == 'INCLUDE') {
                     $php_code_string = 'eval(com_compile(' . trim( implode('). com_compile(', explode (',', $php_code_string)), ').' ) .'))';
-                }                
-                if($command == 'IF') {
+                } elseif ($command == 'IF') {
                     $php_code_string = 'if(' . $php_code_string . '){'; // многострочная
-                }
-                if($command === 'ELSEIF') {
+                } elseif ($command === 'ELSEIF') {
                     $php_code_string = '} elseif(' . $php_code_string.'){';
-                }
-                if($command === 'NEXT') {
+                } elseif ($command === 'NEXT') {
                     $php_code_string = 'endfor';
-                }
-                if($command === 'EXIT') {
+                } elseif ($command === 'EXIT') {
                     $php_code_string = 'break '.$php_code_string;
-                }
-                if($command === 'CONTINUE') {
+                } elseif ($command === 'CONTINUE') {
                     $php_code_string = 'continue '.$php_code_string;
-                }
-                if($command === 'DO') {
+                } elseif ($command === 'DO') {
                     if($php_code_string == '') $php_code_string = 'do { ';
                     else $php_code_string = 'while '.($do_while ? '('. $php_code_string .')' : '(!('. $php_code_string .'))').'{';
-                }
-                if($command === 'LOOP') {
+                } elseif ($command === 'LOOP') {
                     if($php_code_string == '') $php_code_string = '}';
                     else $php_code_string = '} while '.($do_while ? '('. $php_code_string .')' : '(!('. $php_code_string .'))');
-                }                
-                if($command == 'SLEEP' ) $php_code_string = 'usleep(' . $php_code_string .' * 1000000)';
-                if($command == 'CLOSE' ) $php_code_string = 'fclose(' . ltrim($php_code_string, '#') .')';
-                if($command == 'LOCK' ) {
+                } elseif ($command == 'SLEEP' ) {
+					$php_code_string = 'usleep(' . $php_code_string .' * 1000000)';
+				} elseif ($command == 'CLOSE' ) {
+					$php_code_string = 'fclose(' . ltrim($php_code_string, '#') .')';
+				} elseif ($command == 'LOCK' ) {
                     $vars = explode(',', $php_code_string);
                     $file = ltrim( array_shift($vars), '#');
                     $mode = array_shift($vars);
                     $mode = strpos( $mode, 'WRITE' ) !== false ? 'TRUE' : (strpos( $mode, 'READ' ) !== false ? 'FALSE' : $mode);
                     $php_code_string = 'com_LOCK(' . $file . ',' . $mode .')';
-                }
-                if($command == 'UNLOCK' ) $php_code_string = 'com_UNLOCK(' . ltrim($php_code_string, '#') .')';
-                if($command == 'READ' ) {
+                } elseif ($command == 'UNLOCK' ) {
+					$php_code_string = 'com_UNLOCK(' . ltrim($php_code_string, '#') .')';
+				} elseif ($command == 'READ' ) {
                      $vars = explode(',', $php_code_string);
                      $file = ltrim( array_shift($vars), '#');
                      $value = array_shift($vars);
                      $length = array_shift($vars);
                      $php_code_string = $value . '=com_READ(' . $file . ($length == '' ? '' : ',' .$length) . ')';   
-                }
-                if($command == 'WRITE' ) $php_code_string = 'com_WRITE(' . ltrim($php_code_string, '#') .')';
-                if($command == 'GET' ) {
+                } elseif ($command == 'WRITE' ) {
+					$php_code_string = 'com_WRITE(' . ltrim($php_code_string, '#') .')';
+				} elseif ($command == 'GET' ) {
                      $vars = explode(',', $php_code_string);
                      $file = ltrim( array_shift($vars), '#');
                      $value = array_shift($vars);                     
                      $length = array_shift($vars);
                      $php_code_string = $value . '=com_GET(' . $file . ($length == '' ? '' : ','.$length) . ')';   
-                }
-                if($command == 'PUT' ) $php_code_string = 'com_PUT(' . ltrim($php_code_string, '#') .')';
-                if($command == 'CONNECT' ) {
+                } elseif ($command == 'PUT' ) {
+					$php_code_string = 'com_PUT(' . ltrim($php_code_string, '#') .')';
+				} elseif ($command == 'CONNECT' ) {
                     $php_code_string = ltrim( $php_code_string, '$');
                     $php_code_string = preg_replace('/^(CUBRID|DBLIB|FIREBIRD|IBM|INFORMIX|MYSQL|ORACLE|ODBC|PGSQL|SQLITE|MSSQL|4D)/ui','"$1", $2',$php_code_string);
                     
                     $php_code_string = 'com_connect(' . (strtoupper($php_code_string)=='USE' || $php_code_string=='' ? '' : $php_code_string) .')'; 
-                }
-                if($command == 'DISCONNECT' ) $php_code_string = 'com_disconnect(' . $php_code_string .')';
-                if($command == 'USE' ) $php_code_string = 'com_use(' . ltrim( $php_code_string, '#').')';
-                if($command == 'TRANSACTION' ) $php_code_string = '$GLOBALS[\'db_use\'][\'connect\']->beginTransaction()';
-                if($command == 'COMMIT' ) $php_code_string = '$GLOBALS[\'db_use\'][\'connect\']->commit()';
-                if($command == 'ROLLBACK' ) $php_code_string = '$GLOBALS[\'db_use\'][\'connect\']->rollBack()';
-                if($command == 'COLOR' ) {
+                } elseif ($command == 'DISCONNECT' ) {
+					$php_code_string = 'com_disconnect(' . $php_code_string .')';
+				} elseif ($command == 'USE' ) {
+					$php_code_string = 'com_use(' . ltrim( $php_code_string, '#').')';
+				} elseif ($command == 'TRANSACTION' ) {
+					$php_code_string = '$GLOBALS[\'db_use\'][\'connect\']->beginTransaction()';
+				} elseif ($command == 'COMMIT' ) {
+					$php_code_string = '$GLOBALS[\'db_use\'][\'connect\']->commit()';
+				} elseif($command == 'ROLLBACK' ) {
+					$php_code_string = '$GLOBALS[\'db_use\'][\'connect\']->rollBack()';
+				} elseif ($command == 'COLOR' ) {
                     if( substr($php_code_string,0,2) == '#$' ) $php_code_string = '\'' . substr($php_code_string, 2) . '\'';
                     $php_code_string = 'com_COLOR(' . $php_code_string .')';
-                }
-                if($command == 'LINE' ) {
+                } elseif ($command == 'LINE' ) {
                     preg_match_all('/\(((?:(?>[^()]+)|(?R))*)\)/', $php_code_string, $php_code_string_math,  PREG_SET_ORDER, 0);
                     $coord = array();
                     foreach($php_code_string_math as $math) {
@@ -644,22 +631,19 @@ function com_compile ($file) {
                  
                     if( substr($php_code_string,0,3) == ',#$' ) $php_code_string = ',\'' . substr($php_code_string, 3) . '\'';
                     $php_code_string = 'com_line(array(' . implode( ',', $coord ) . ')' . ($php_code_string == '' ? 'NULL' : $php_code_string ) . ',' . $mode . ')'; 
-                }
-                if($command == 'PSET' ) {
+                } elseif ($command == 'PSET' ) {
                     preg_match('/\(((?:(?>[^()]+)|(?R))*)\)/', $php_code_string, $coord);
                     $php_code_string = str_replace($coord[0], '', $php_code_string);
                     $coord = $coord[1];
                     if( substr($php_code_string,0,3) == ',#$' ) $php_code_string = ',\'' . substr($php_code_string, 3) . '\'';
                     $php_code_string = 'com_pset(' . $coord . ($php_code_string == '' ? ',NULL' : $php_code_string ) . ')'; 
-                }
-                if($command == 'PAINT' ) {
+                } elseif ($command == 'PAINT' ) {
                     preg_match('/\(((?:(?>[^()]+)|(?R))*)\)/', $php_code_string, $coord);
                     $php_code_string = str_replace($coord[0], '', $php_code_string);
                     $coord = $coord[1];
                     if( substr($php_code_string,0,3) == ',#$' ) $php_code_string = ',\'' . substr($php_code_string, 3) . '\'';
                     $php_code_string = 'com_paint(' . $coord . ($php_code_string == '' ? ',NULL' : $php_code_string ) . ')'; 
-                }
-                if($command == 'CIRCLE' ) {
+                } elseif ($command == 'CIRCLE' ) {
                     preg_match_all('/(?:[^,(]|\([^)]*\))+/', $php_code_string, $php_code_string_math);
                     preg_match('/\((.+)\)/', $php_code_string_math[0][0], $coord);
                     if( isset($php_code_string_math[0][2]) && substr($php_code_string_math[0][2],0,2) == '#$' ) $php_code_string_math[0][2] = '\'' . substr($php_code_string_math[0][2], 2) . '\'';
@@ -668,10 +652,8 @@ function com_compile ($file) {
                     elseif(isset($php_code_string_math[0][6]) && strtoupper(substr($php_code_string_math[0][6],-1)) == 'B' ) $mode = 1;
                     $php_code_string = 'com_circle(' . $coord[1] . ',' . $php_code_string_math[0][1] . ',' . (!isset($php_code_string_math[0][2]) ? 'NULL' : $php_code_string_math[0][2] ) . ',' . (!isset($php_code_string_math[0][3]) ? '0' : $php_code_string_math[0][3] ) . ',' . (!isset($php_code_string_math[0][4]) ? '360' : $php_code_string_math[0][4] ). ',' . (!isset($php_code_string_math[0][5]) ? '1' : $php_code_string_math[0][5] ) .',' . $mode . ')'; 
                 }                
-                
                  
                 unset($php_code_string, $command, $var_eq);
-            
             }
             //var_export($tree_command);
             // многосекционные команды
