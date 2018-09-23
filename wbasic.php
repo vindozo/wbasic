@@ -177,7 +177,7 @@ function debug_toggle(id){
         foreach($bas_code_file as $bas_code_string) echo '<li type="1">' . htmlentities($bas_code_string, ENT_QUOTES) . '</li>';
         echo '</ul></div>';
     }        
-    // все что откомпилировалось, для извращенцев
+    // все что откомпилировалось, для "суровых мужиков"
     foreach( $debug_php as $script_file => $php_code){
         echo '<a name="debug-php"></a><div class="debug_code debug_code_php debug_code_hide" id="debug_code_php_'.md5($script_file).'"><b><a href="#" onclick=\'return debug_toggle("#debug_code_php_'.md5($script_file).'")\'>—</a> OUTFILE ' . $script_file . '</b><ul class=debug_code>';
         foreach( explode(PHP_EOL, $php_code) as $php_code_file){
