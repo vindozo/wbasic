@@ -3,7 +3,7 @@
     Проект: WBASIC - Акроним Web Beginner's All-purpose Symbolic Instruction Code.
             Высокоуровневый язык программирования применяемый для разработки серверных веб-приложений.
             Философия языка - это должно быть просто для начинающих.
-    Версия: 1.2 
+    Версия: 1.3 
     Начало разработки: 24.03.2017, текущей версии: 20.09.2018, релиз текущей версии: 20.09.2018
     Лицензия: ISC
     Авторские права: (c) 2017-2027, Верига Алексей, vindozo@gmail.com
@@ -24,42 +24,135 @@ error_reporting(E_ALL);
 DEFINE ('CYRILLIC',	'АӘӒӐБВГҒҐЃДЂЕЄЁӖЖӁҖӜЗҘӞИЇЙКҚҠЛЉМНЊҢҤОӨӦПРСҪТЌЋУҰЎӮӰӲФХҺҲЦЧҶЏШЩЪЫӸЬЭЮЯ' ); // полная кирилица для регулярок
 mb_internal_encoding('UTF-8'); mb_regex_encoding('UTF-8'); setlocale (LC_ALL, 'ru_RU' );
 $_WEB = array( // перепаковка массива $_SERVER, т.к. в нем очень много элементов с префиском "PHP_"
-			'URI' => isset( $_SERVER['SCRIPT_URI'] ) ?  $_SERVER['SCRIPT_URI'] : '', 
-			'SCHEME' => isset( $_SERVER['REQUEST_SCHEME'] )? $_SERVER['REQUEST_SCHEME'] : '', 
-			'HOST' => isset( $_SERVER['HTTP_HOST'] ) ? $_SERVER['HTTP_HOST'] : '', 
-			'URL' => isset( $_SERVER['SCRIPT_URL'] ) ? $_SERVER['SCRIPT_URL'] : '',  
-			'SCRIPT' => isset($_SERVER['SCRIPT_NAME'] ) ? $_SERVER['SCRIPT_NAME'] : '',
-			'SERVER' => isset( $_SERVER['SERVER_SOFTWARE'] ) ? $_SERVER['SERVER_SOFTWARE'] : '', 
-			'IP' => isset($_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : '', 
-			'BROWSER' => isset( $_SERVER['HTTP_USER_AGENT'] ) ? $_SERVER['HTTP_USER_AGENT'] : '',
-			'LANGUAGE' => isset( $_SERVER['HTTP_ACCEPT_LANGUAGE'] ) ? $_SERVER['HTTP_ACCEPT_LANGUAGE'] : '',
-			'REFERER' => isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : '',            
-			'AUTH' => isset( $_SERVER['PHP_AUTH_DIGEST'] ) ? $_SERVER['PHP_AUTH_DIGEST'] : '', 
-			'LOGIN' => isset( $_SERVER['PHP_AUTH_USER'] )? $_SERVER['PHP_AUTH_USER'] : '', 
-			'PASSWORD' => isset( $_SERVER['PHP_AUTH_PW'] )? $_SERVER['PHP_AUTH_PW'] : '',
-			'REQUEST_TIME' => isset( $_SERVER['REQUEST_TIME_FLOAT']) ? $_SERVER['REQUEST_TIME_FLOAT'] : '', 
-		);
+	'SCHEME' => isset( $_SERVER['REQUEST_SCHEME'] )? $_SERVER['REQUEST_SCHEME'] : '', 
+	'HOST' => isset( $_SERVER['HTTP_HOST'] ) ? $_SERVER['HTTP_HOST'] : '', 
+	'PORT' => isset( $_SERVER['SERVER_PORT'] ) ? $_SERVER['SERVER_PORT'] : '', 
+	'SCRIPT' => isset($_SERVER['SCRIPT_NAME'] ) ? $_SERVER['SCRIPT_NAME'] : '',
+	'SERVER' => isset( $_SERVER['SERVER_SOFTWARE'] ) ? $_SERVER['SERVER_SOFTWARE'] : '', 
+	'SERVER_IP' => isset( $_SERVER['SERVER_ADDR'] ) ? $_SERVER['SERVER_ADDR'] : '', 
+	'IP' => isset($_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : '', 
+	'BROWSER' => isset( $_SERVER['HTTP_USER_AGENT'] ) ? $_SERVER['HTTP_USER_AGENT'] : '',
+	'LANGUAGE' => isset( $_SERVER['HTTP_ACCEPT_LANGUAGE'] ) ? $_SERVER['HTTP_ACCEPT_LANGUAGE'] : '',
+	'REFERER' => isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : '',            
+	'AUTH' => isset( $_SERVER['PHP_AUTH_DIGEST'] ) ? $_SERVER['PHP_AUTH_DIGEST'] : '', 
+	'LOGIN' => isset( $_SERVER['PHP_AUTH_USER'] )? $_SERVER['PHP_AUTH_USER'] : '', 
+	'PASSWORD' => isset( $_SERVER['PHP_AUTH_PW'] )? $_SERVER['PHP_AUTH_PW'] : '',
+	'REQUEST_TIME' => isset( $_SERVER['REQUEST_TIME_FLOAT']) ? $_SERVER['REQUEST_TIME_FLOAT'] : '', 
+);
+if (!empty($_SERVER['SCRIPT_URL'])) $_WEB['URL'] = $_SERVER['SCRIPT_URL'];
+elseif ( isset($_SERVER['REQUEST_URI'])) { $_WEB['URL'] = parse_url($_SERVER['REQUEST_URI']); $_WEB['URL'] = $_WEB['URL']['path']; }
+else $_WEB['URL'] = '';
+$_WEB += array( // теперь в русские названия, транслитом, кроме HOST, PORT, SERVER, SERVER_IP, IP, LOGIN
+	'ADRES' => $_WEB['URL'],
+	'SHEMA' => $_WEB['SCHEME'], 
+	'SKRIPT' => $_WEB['SCRIPT'],
+	'BRAUZER' => $_WEB['BROWSER'],
+	'YAZIK' => $_WEB['LANGUAGE'],
+	'REFER' => $_WEB['REFERER'],
+	'AVTORIZACIYA' => $_WEB['AUTH'],
+	'PAROL' => $_WEB['PASSWORD'],
+	'VREMYA' => $_WEB['REQUEST_TIME'],
+);
+
 $is_session_start = false; // признак старта сессии для команд работы с сессиями
+
 $def_key = array( // массив предопределенных функций, для переопределения функций и команды DECLARE
-    'com_ASC' => 'ASC', 'com_CHR' => 'CHR', 'mb_strlen' => 'LEN', 'com_MID' => 'MID', 'com_LEFT' => 'LEFT', 'com_RIGHT' => 'RIGHT',
-    'com_TRIM' => 'TRIM', 'com_LTRIM' => 'LTRIM', 'com_RTRIM' => 'RTRIM', 'mb_strtoupper' => 'UCASE', 'mb_strtolower' => 'LCASE',
-    'com_INSTR' => 'INSTR', 'com_INSTRREV' => 'INSTRREV', 'com_SPLIT' => 'SPLIT', 'com_JOIN' => 'JOIN',
-    'com_VAL' => 'VAL', 'com_STR' => 'STR', 'com_REPLACE' => 'REPLACE', 'com_CRC32' => 'CRC32', 'com_decode' => 'DECODE', 'com_ENCODE' => 'ENCODE',
-    'com_CONCAT' => 'CONCAT', 'array_merge_recursive' => 'MERGE', 'array_unshift' => 'UNSHIFT', 'array_shift' => 'SHIFT', 'array_pop' => 'POP', 'array_push' => 'PUSH',
-    'array_splice' => 'SPLICE', 'array_slice' => 'SLICE', 'array_diff' => 'DIFF', 'array_intersect' => 'INTERSECT', 'com_UNIQUE' => 'UNIQUE',
-    'array_reverse' => 'REVERSE', 'com_RANDOMISE' => 'RANDOMISE', 'com_INDEXOF' => 'INDEXOF', 'com_LASTINDEXOF' => 'LASTINDEXOF',
-    'com_GETVALUE' => 'GETVALUE', 'com_GETKEY' => 'GETKEY', 'com_SETVALUE' => 'SETVALUE', 'com_DIM' => 'DIM', 'com_JSON' => 'JSON', 'com_SORT' => 'SORT', 'com_SORT' => 'SORT',
-    'com_LBOUND' => 'LBOUND', 'com_UBOUND' => 'UBOUND', 'com_KEYS' => 'KEYS',
-    'com_SIN' => 'SIN', 'com_COS' => 'COS', 'com_TAN' => 'TAN', 'com_CTG' => 'CTG', 'com_SEC' => 'SEC', 'com_COSEC' => 'COSEC', 
-    'com_ASIN' => 'ASIN', 'com_ACOS' => 'ACOS', 'com_ATAN' => 'ATAN', 'com_ACTG' => 'ACTG', 'com_ASEC' => 'ASEC', 'com_ACOSEC' => 'ACOSEC', 'com_NOTATION' => 'NOTATION',
-    'ceil' => 'CEILING', 'com_MOD' => 'MOD', 'com_DIV' => 'DIV', 'mt_srand' => 'RANDOMIZE', 'com_rand' => 'RND', 'com_PLURAL' => 'PLURAL',
-    'frell' => 'LOC', 'fseek' => 'SEEK', 'feof' => 'EOF', 'com_LOCK' => 'LOCK', 'com_UNLOCK' => 'UNLOCK',
-    'com_GET' => 'GET', 'com_PUT' => 'PUT', 'com_READ' => 'READ', 'com_WRITE' => 'WRITE', 'com_FILEEXISTS' => 'FILEEXISTS', 'com_FILEDATETIME' => 'FILEDATETIME', 'com_FILELEN' => 'FILELEN', 'com_FILEATTR' => 'FILEATTR',
-    'com_KILL' => 'KILL', 'com_NAME' => 'NAME', 'com_FILECOPY' => 'FILECOPY', 'com_RMDIR' => 'RMDIR', 'com_MKDIR' => 'MKDIR', 'com_DIRLEN' => 'DIRLEN', 'com_DIRSPACE' => 'DIRSPACE', 'com_DIR' => 'DIR',
-    'com_TIMER' => 'TIMER', 'time' => 'NOW', 'com_DATE' => 'DATE', 'com_DATEDIFF' => 'DATEDIFF',
-    'com_QUERY' => 'QUERY', 'com_QUOTE' => 'QUOTE', 'com_LASTINSERID' => 'LASTINSERID',
-    'com_COLOR' => 'COLOR', 'com_POINT' => 'POINT',
-    );
+  'ASC' => 'com_ASC', 'KOD' => 'com_ASC', 
+  'CHR' => 'com_CHR',
+  'LEN' => 'mb_strlen',
+  'MID' => 'com_MID',
+  'LEFT' => 'com_LEFT',
+  'RIGHT' => 'com_RIGHT',
+  'TRIM' => 'com_TRIM',
+  'LTRIM' => 'com_LTRIM',
+  'RTRIM' => 'com_RTRIM',
+  'UCASE' => 'mb_strtoupper',
+  'LCASE' => 'mb_strtolower',
+  'INSTR' => 'com_INSTR',
+  'INSTRREV' => 'com_INSTRREV',
+  'SPLIT' => 'com_SPLIT',
+  'JOIN' => 'com_JOIN',
+  'VAL' => 'com_VAL',
+  'STR' => 'com_STR',
+  'REPLACE' => 'com_REPLACE',
+  'CRC32' => 'com_CRC32',
+  'DECODE' => 'com_decode',
+  'ENCODE' => 'com_ENCODE',
+  'CONCAT' => 'com_CONCAT',
+  'MERGE' => 'array_merge_recursive',
+  'UNSHIFT' => 'array_unshift',
+  'SHIFT' => 'array_shift',
+  'POP' => 'array_pop',
+  'PUSH' => 'array_push',
+  'SPLICE' => 'array_splice',
+  'SLICE' => 'array_slice',
+  'DIFF' => 'array_diff',
+  'INTERSECT' => 'array_intersect',
+  'UNIQUE' => 'com_UNIQUE',
+  'REVERSE' => 'array_reverse',
+  'RANDOMISE' => 'com_RANDOMISE',
+  'INDEXOF' => 'com_INDEXOF',
+  'LASTINDEXOF' => 'com_LASTINDEXOF',
+  'GETVALUE' => 'com_GETVALUE',
+  'GETKEY' => 'com_GETKEY',
+  'SETVALUE' => 'com_SETVALUE',
+  'DIM' => 'com_DIM',
+  'JSON' => 'com_JSON',
+  'SORT' => 'com_SORT',
+  'LBOUND' => 'com_LBOUND',
+  'UBOUND' => 'com_UBOUND',
+  'KEYS' => 'com_KEYS',
+  'SIN' => 'com_SIN',
+  'COS' => 'com_COS',
+  'TAN' => 'com_TAN',
+  'CTG' => 'com_CTG',
+  'SEC' => 'com_SEC',
+  'COSEC' => 'com_COSEC',
+  'ASIN' => 'com_ASIN',
+  'ACOS' => 'com_ACOS',
+  'ATAN' => 'com_ATAN',
+  'ACTG' => 'com_ACTG',
+  'ASEC' => 'com_ASEC',
+  'ACOSEC' => 'com_ACOSEC',
+  'NOTATION' => 'com_NOTATION',
+  'CEILING' => 'ceil',
+  'MOD' => 'com_MOD',
+  'DIV' => 'com_DIV',
+  'RANDOMIZE' => 'mt_srand',
+  'RND' => 'com_rand',
+  'PLURAL' => 'com_PLURAL',
+  'LOC' => 'frell',
+  'SEEK' => 'fseek',
+  'EOF' => 'feof',
+  'LOCK' => 'com_LOCK',
+  'UNLOCK' => 'com_UNLOCK',
+  'GET' => 'com_GET',
+  'PUT' => 'com_PUT',
+  'READ' => 'com_READ',
+  'WRITE' => 'com_WRITE',
+  'FILEEXISTS' => 'com_FILEEXISTS',
+  'FILEDATETIME' => 'com_FILEDATETIME',
+  'FILELEN' => 'com_FILELEN',
+  'FILEATTR' => 'com_FILEATTR',
+  'KILL' => 'com_KILL',
+  'NAME' => 'com_NAME',
+  'FILECOPY' => 'com_FILECOPY',
+  'RMDIR' => 'com_RMDIR',
+  'MKDIR' => 'com_MKDIR',
+  'DIRLEN' => 'com_DIRLEN',
+  'DIRSPACE' => 'com_DIRSPACE',
+  'DIR' => 'com_DIR',
+  'TIMER' => 'com_TIMER',
+  'NOW' => 'time',
+  'DATE' => 'com_DATE',
+  'DATEDIFF' => 'com_DATEDIFF',
+  'QUERY' => 'com_QUERY',
+  'QUOTE' => 'com_QUOTE',
+  'LASTINSERID' => 'com_LASTINSERID',
+  'COLOR' => 'com_COLOR',
+  'POINT' => 'com_POINT',
+);
+//if( $_SERVER['REMOTE_ADDR'] == '87.251.187.34') {var_export(array_flip ($def_key));die();}
 $script_filename = isset($_SERVER['REDIRECT_SCRIPT_URL']) ? $_SERVER['REDIRECT_SCRIPT_URL'] : '/index.bas' ; //скрипт по умолчанию
 $include_path = __DIR__; // базовая директория, откуда ищутся все файлы
 $cache_dir = sys_get_temp_dir().'/cache_'; // директория и префикс файлов для кеширования скомпилированных программ
@@ -177,7 +270,7 @@ function debug_toggle(id){
         foreach($bas_code_file as $bas_code_string) echo '<li type="1">' . htmlentities($bas_code_string, ENT_QUOTES) . '</li>';
         echo '</ul></div>';
     }        
-    // все что откомпилировалось, для извращенцев
+    // все что откомпилировалось, для "суровых мужиков"
     foreach( $debug_php as $script_file => $php_code){
         echo '<a name="debug-php"></a><div class="debug_code debug_code_php debug_code_hide" id="debug_code_php_'.md5($script_file).'"><b><a href="#" onclick=\'return debug_toggle("#debug_code_php_'.md5($script_file).'")\'>—</a> OUTFILE ' . $script_file . '</b><ul class=debug_code>';
         foreach( explode(PHP_EOL, $php_code) as $php_code_file){
@@ -456,24 +549,22 @@ function com_compile ($file) {
                         else $is = '';
 						if( ( substr($tree_command[$tree_counter]['command'], 0 , 1 ) == '=' || $tree_command[$tree_counter]['command'] == 'SUB' ) && $atom_num < 2 ){
                             $tree_command[$tree_counter]['var_eq'] = com_transliterate( $atom_value );
-                            if( !in_array($tree_command[$tree_counter]['var_eq'], $def_key) && !$open_bracket) $tree_command[$tree_counter]['var_eq'] = '$'. $tree_command[$tree_counter]['var_eq'];
+                            if( !isset($def_key[$tree_command[$tree_counter]['var_eq']]) && !$open_bracket) $tree_command[$tree_counter]['var_eq'] = '$'. $tree_command[$tree_counter]['var_eq'];
                             else { // это функция и она есть в массиве ключевых слов
-                                $key = array_search($tree_command[$tree_counter]['var_eq'], $def_key); // получим ее ключ
-                                if(!is_int($key) && $key !== false) $tree_command[$tree_counter]['var_eq'] = $key; // если ключ не просто индекс, то там эквивалент функции из DECLARE, перешьем имя
+                                if( array_key_exists ($tree_command[$tree_counter]['var_eq'], $def_key) ) $tree_command[$tree_counter]['var_eq'] = $def_key[$tree_command[$tree_counter]['var_eq']]; // если ключ не просто индекс, то там эквивалент функции из DECLARE, перешьем имя
                             }
 						}
 						if($atom_num > 0) {
 							$var = com_transliterate( $atom_value );
 							if($tree_command[$tree_counter]['command'] == 'SUB' && $atom_num == 1){
-								if( in_array($var, $def_key) ) com_error( 'WHAT?', 'Redefine ' . $tree_command[$tree_counter]['command'] .' '. $var ); 
+								if( array_key_exists($var, $def_key) ) com_error( 'WHAT?', 'Redefine ' . $tree_command[$tree_counter]['command'] .' '. $var ); 
 								else {
 									$tree_command[$tree_counter]['php_code_string'] .= $var;
-									$def_key[] = $var;
+									$def_key[$var] = $var;
 								}
 							} else {
-								if( (in_array($var, $def_key) || $open_bracket) && !in_array($var, array('NOT', 'ARRAY'))) { // это функция и она есть в массиве ключевых слов
-                                    $key = array_search($var, $def_key); // получим ее ключ
-                                    if(!is_int($key) && $key !== false) $tree_command[$tree_counter]['php_code_string'] .= $key; // если ключ не просто индекс, то там эквивалент функции из DECLARE, перешьем имя
+								if( (array_key_exists($var, $def_key) || $open_bracket) && !in_array($var, array('NOT', 'ARRAY'))) { // это функция и она есть в массиве ключевых слов
+                                    if(array_key_exists($var, $def_key)) $tree_command[$tree_counter]['php_code_string'] .= $def_key[$var]; // если ключ не просто индекс, то там эквивалент функции из DECLARE, перешьем имя
                                     else $tree_command[$tree_counter]['php_code_string'] .= $var;  
                                 } else $tree_command[$tree_counter]['php_code_string'] .= 
                                 ( !in_array($var, array('DEG', 'PI', 'NONE', 'NOTHING', 'ANY', 'TRUE', 'FALSE', 'NULL', 'AND', 'OR', 'NOT', 'XOR', 'ARRAY', 'IIF')) && $is == '' ? '$' : '') . // это операторы а не переменые
@@ -499,190 +590,209 @@ function com_compile ($file) {
                 $php_code_string = &$tree_command[$three_key]['php_code_string'];
                 $command = &$tree_command[$three_key]['command'];
                 $var_eq = &$tree_command[$three_key]['var_eq'];
-            
-                if($command == 'REM') $php_code_string = ''; 
-                if($command == 'PRINT' || $command == '?') {
-                    if(substr($php_code_string,0,3) == 'AT(' ){
+				if (substr($command, 0 , 1 ) == '=' ) {
+						$php_code_string =  $var_eq  
+                            . ( substr($php_code_string, 0, 1) != '=' ? '' : '=' ) 
+							. ( str_replace( array( '$', '#', '%', '&', '@', ':' ), array('(string)(', '(int)(', '(float)(', '(boolean)(', '(array)(', ''), substr( $command, -1) ) ) 
+                            . ( substr($php_code_string, 0, 1) != '=' ? $php_code_string : substr($php_code_string, 1) )
+                            . (substr( $command, -1) == ':' ? '' : ')');
+				} else switch($command) {
+					case 'REM':
+						$php_code_string = ''; 
+						break;
+					case 'PRINT'; case '?':
+						if(substr($php_code_string,0,3) == 'AT(' ){
                         $php_code_string = substr($php_code_string, 2);
                         preg_match_all('/(?:[^,(]|\([^)]*\))+/', $php_code_string, $php_code_string_math);
                         preg_match('/\((.+)\)/', $php_code_string_math[0][0], $coord);
                         if( isset($php_code_string_math[0][2]) && substr($php_code_string_math[0][2],0,2) == '#$' ) $php_code_string_math[0][2] = '\'' . substr($php_code_string_math[0][2], 2) . '\'';
                         $php_code_string = 'com_text(' . $coord[1] . ',' . $php_code_string_math[0][1] . ',' . (!isset($php_code_string_math[0][2]) ? 'NULL' : $php_code_string_math[0][2] ) . ',' . (!isset($php_code_string_math[0][3]) ? 'NULL' : $php_code_string_math[0][3] ) . ',' . (!isset($php_code_string_math[0][4]) ? 'NULL' : $php_code_string_math[0][4] ). ',' . (!isset($php_code_string_math[0][5]) ? 'NULL' : $php_code_string_math[0][5] ) . ')'; 
-                    } else $php_code_string = 'echo ' . $php_code_string ;
-                }
-                if($command == 'INPUT') {
-                    $vars = explode (',', $php_code_string);
-                    if( strpos( $vars[0] , '"') !== false ) $var_source = array_shift ($vars);
-                    else $var_source = '"GET"';
-                    $php_code_string = 'list(' . str_replace( array('(string)', '(int)', '(float)', '(boolean)', '(array)'), '', implode(',', $vars)) . ')=com_input(' . $var_source . ",array('" . implode("','", $vars) . "'))";
-                } 
-                if($command == 'OUTPUT') {
-                    $vars = explode (',', $php_code_string);
-                    if( strpos( $vars[0] , '"') !== false ) $var_source = array_shift ($vars);
-                    else $var_source = '"SESSION"';
-                    $php_code_string = 'com_output(' . $var_source . ($var_source != 'SESSION' ? ",array('" . implode("','", $vars) . "')," : 'array(),' ) .'array('. implode(',', $vars) . "))";
-                }
-                if(substr($command, 0 , 1 ) == '=' ) {
-                    $php_code_string =  $var_eq  
-                                        . ( substr($php_code_string, 0, 1) != '=' ? '' : '=' ) 
-                                        . ( str_replace( array( '$', '#', '%', '&', '@', ':' ), array('(string)(', '(int)(', '(float)(', '(boolean)(', '(array)(', ''), substr( $command, -1) ) ) 
-                                        . ( substr($php_code_string, 0, 1) != '=' ? $php_code_string : substr($php_code_string, 1) )
-                                        . (substr( $command, -1) == ':' ? '' : ')');
-                } 
-                if($command == 'LET') {
-                    if ( strpos( $php_code_string , '=') !== false ) $php_code_string = 'static ' . $var_eq  .  $php_code_string;
-                    else $php_code_string = 'global $' .  $php_code_string;
-                } 
+						} else $php_code_string = 'echo ' . $php_code_string ;
+						break;
+					case 'INPUT':
+						$vars = explode (',', $php_code_string);
+						if( strpos( $vars[0] , '"') !== false ) $var_source = array_shift ($vars);
+						else $var_source = '"GET"';
+						$php_code_string = 'list(' . str_replace( array('(string)', '(int)', '(float)', '(boolean)', '(array)'), '', implode(',', $vars)) . ')=com_input(' . $var_source . ",array('" . implode("','", $vars) . "'))";
+						break;
+					case 'OUTPUT':
+						$vars = explode (',', $php_code_string);
+						if( strpos( $vars[0] , '"') !== false ) $var_source = array_shift ($vars);
+						else $var_source = '"SESSION"';
+						$php_code_string = 'com_output(' . $var_source . ($var_source != 'SESSION' ? ",array('" . implode("','", $vars) . "')," : 'array(),' ) .'array('. implode(',', $vars) . "))";
+						break;
+					case 'LET':
+						if ( strpos( $php_code_string , '=') !== false ) $php_code_string = 'static ' . $var_eq  .  $php_code_string;
+						else $php_code_string = 'global $' .  $php_code_string;
+						break;
 
-                if($command == 'SUB') $php_code_string = 'function ' . ( strpos( $php_code_string , '(' ) === false ? $php_code_string . '()' : $php_code_string ). '{' . $var_eq . '=func_get_args()' .
-                    ( $debug_mode ? '/*debug_timer*/; $GLOBALS[\'debug_time\'][] = (microtime(true)-$_SERVER[\'REQUEST_TIME_FLOAT\']).":'. htmlentities($bas_code_string, ENT_QUOTES) . '";/*debug_timer*/ ' : '') ;
-                if($command == 'END') { // универсальный конец
-                    if($php_code_string != '' ) $php_code_string = 'return '. $php_code_string .'; }'; // специальный конец для SUB
-                    else $php_code_string = '}' ;
-                }
-                if($command == 'GOSUB') { // изменяет строку кода так, чтобы можно было не декларировать подпрограммы заранее
-                    $php_code_string = substr( $php_code_string, 1 ) . ( strpos( $php_code_string , '(' ) === false ? '()' : '');
-                }
-                if($command == 'RETURN') {
-                    $php_code_string = 'return ' . $php_code_string;
-                }
-                if($command == 'DEBUG') {
-                    $vars = explode (',', $php_code_string);
-                    com_debug( $vars );
-                    $php_code_string = '';
-                }    
-                if($command === 'STOP') {
-                    $vars = explode (',', $php_code_string);
-                    $php_code_string = 'com_stop(array(' . implode(",", $vars) . "),array('" . implode("','", $vars) . "'))";
-                }
-                if($command === 'ERASE') {
-                    $php_code_string = 'unset(' . $php_code_string. ')';
-                }
-                if($command == 'INCLUDE') {
-                    $php_code_string = 'eval(com_compile(' . trim( implode('). com_compile(', explode (',', $php_code_string)), ').' ) .'))';
-                }                
-                if($command == 'IF') {
-                    $php_code_string = 'if(' . $php_code_string . '){'; // многострочная
-                }
-                if($command === 'ELSEIF') {
-                    $php_code_string = '} elseif(' . $php_code_string.'){';
-                }
-                if($command === 'NEXT') {
-                    $php_code_string = 'endfor';
-                }
-                if($command === 'EXIT') {
-                    $php_code_string = 'break '.$php_code_string;
-                }
-                if($command === 'CONTINUE') {
-                    $php_code_string = 'continue '.$php_code_string;
-                }
-                if($command === 'DO') {
-                    if($php_code_string == '') $php_code_string = 'do { ';
-                    else $php_code_string = 'while '.($do_while ? '('. $php_code_string .')' : '(!('. $php_code_string .'))').'{';
-                }
-                if($command === 'LOOP') {
-                    if($php_code_string == '') $php_code_string = '}';
-                    else $php_code_string = '} while '.($do_while ? '('. $php_code_string .')' : '(!('. $php_code_string .'))');
-                }                
-                if($command == 'SLEEP' ) $php_code_string = 'usleep(' . $php_code_string .' * 1000000)';
-                if($command == 'CLOSE' ) $php_code_string = 'fclose(' . ltrim($php_code_string, '#') .')';
-                if($command == 'LOCK' ) {
-                    $vars = explode(',', $php_code_string);
-                    $file = ltrim( array_shift($vars), '#');
-                    $mode = array_shift($vars);
-                    $mode = strpos( $mode, 'WRITE' ) !== false ? 'TRUE' : (strpos( $mode, 'READ' ) !== false ? 'FALSE' : $mode);
-                    $php_code_string = 'com_LOCK(' . $file . ',' . $mode .')';
-                }
-                if($command == 'UNLOCK' ) $php_code_string = 'com_UNLOCK(' . ltrim($php_code_string, '#') .')';
-                if($command == 'READ' ) {
-                     $vars = explode(',', $php_code_string);
-                     $file = ltrim( array_shift($vars), '#');
-                     $value = array_shift($vars);
-                     $length = array_shift($vars);
-                     $php_code_string = $value . '=com_READ(' . $file . ($length == '' ? '' : ',' .$length) . ')';   
-                }
-                if($command == 'WRITE' ) $php_code_string = 'com_WRITE(' . ltrim($php_code_string, '#') .')';
-                if($command == 'GET' ) {
-                     $vars = explode(',', $php_code_string);
-                     $file = ltrim( array_shift($vars), '#');
-                     $value = array_shift($vars);                     
-                     $length = array_shift($vars);
-                     $php_code_string = $value . '=com_GET(' . $file . ($length == '' ? '' : ','.$length) . ')';   
-                }
-                if($command == 'PUT' ) $php_code_string = 'com_PUT(' . ltrim($php_code_string, '#') .')';
-                if($command == 'CONNECT' ) {
-                    $php_code_string = ltrim( $php_code_string, '$');
-                    $php_code_string = preg_replace('/^(CUBRID|DBLIB|FIREBIRD|IBM|INFORMIX|MYSQL|ORACLE|ODBC|PGSQL|SQLITE|MSSQL|4D)/ui','"$1", $2',$php_code_string);
-                    
-                    $php_code_string = 'com_connect(' . (strtoupper($php_code_string)=='USE' || $php_code_string=='' ? '' : $php_code_string) .')'; 
-                }
-                if($command == 'DISCONNECT' ) $php_code_string = 'com_disconnect(' . $php_code_string .')';
-                if($command == 'USE' ) $php_code_string = 'com_use(' . ltrim( $php_code_string, '#').')';
-                if($command == 'TRANSACTION' ) $php_code_string = '$GLOBALS[\'db_use\'][\'connect\']->beginTransaction()';
-                if($command == 'COMMIT' ) $php_code_string = '$GLOBALS[\'db_use\'][\'connect\']->commit()';
-                if($command == 'ROLLBACK' ) $php_code_string = '$GLOBALS[\'db_use\'][\'connect\']->rollBack()';
-                if($command == 'COLOR' ) {
-                    if( substr($php_code_string,0,2) == '#$' ) $php_code_string = '\'' . substr($php_code_string, 2) . '\'';
-                    $php_code_string = 'com_COLOR(' . $php_code_string .')';
-                }
-                if($command == 'LINE' ) {
-                    preg_match_all('/\(((?:(?>[^()]+)|(?R))*)\)/', $php_code_string, $php_code_string_math,  PREG_SET_ORDER, 0);
-                    $coord = array();
-                    foreach($php_code_string_math as $math) {
-                        $php_code_string = str_replace($math[0], '', $php_code_string);
-                        $coord[] = $math[1];
-                    }
-                    $php_code_string = ltrim($php_code_string, '- ');
-                    $mode = 0;
-                    if( strtoupper(substr($php_code_string,-4)) == ',$BF' ) {
-                        $mode = 2;
-                        $php_code_string = str_replace(',$BF', '', $php_code_string);
-                    }elseif( strtoupper(substr($php_code_string,-3)) == ',$B' ){
-                        $mode = 1;
-                        $php_code_string = str_replace(',$B', '', $php_code_string);
-                    }
-                 
-                    if( substr($php_code_string,0,3) == ',#$' ) $php_code_string = ',\'' . substr($php_code_string, 3) . '\'';
-                    $php_code_string = 'com_line(array(' . implode( ',', $coord ) . ')' . ($php_code_string == '' ? 'NULL' : $php_code_string ) . ',' . $mode . ')'; 
-                }
-                if($command == 'PSET' ) {
-                    preg_match('/\(((?:(?>[^()]+)|(?R))*)\)/', $php_code_string, $coord);
-                    $php_code_string = str_replace($coord[0], '', $php_code_string);
-                    $coord = $coord[1];
-                    if( substr($php_code_string,0,3) == ',#$' ) $php_code_string = ',\'' . substr($php_code_string, 3) . '\'';
-                    $php_code_string = 'com_pset(' . $coord . ($php_code_string == '' ? ',NULL' : $php_code_string ) . ')'; 
-                }
-                if($command == 'PAINT' ) {
-                    preg_match('/\(((?:(?>[^()]+)|(?R))*)\)/', $php_code_string, $coord);
-                    $php_code_string = str_replace($coord[0], '', $php_code_string);
-                    $coord = $coord[1];
-                    if( substr($php_code_string,0,3) == ',#$' ) $php_code_string = ',\'' . substr($php_code_string, 3) . '\'';
-                    $php_code_string = 'com_paint(' . $coord . ($php_code_string == '' ? ',NULL' : $php_code_string ) . ')'; 
-                }
-                if($command == 'CIRCLE' ) {
-                    preg_match_all('/(?:[^,(]|\([^)]*\))+/', $php_code_string, $php_code_string_math);
-                    preg_match('/\((.+)\)/', $php_code_string_math[0][0], $coord);
-                    if( isset($php_code_string_math[0][2]) && substr($php_code_string_math[0][2],0,2) == '#$' ) $php_code_string_math[0][2] = '\'' . substr($php_code_string_math[0][2], 2) . '\'';
-                    $mode = 0;
-                    if( isset($php_code_string_math[0][6]) && strtoupper(substr($php_code_string_math[0][6],-2)) == 'BF' ) $mode = 2;
-                    elseif(isset($php_code_string_math[0][6]) && strtoupper(substr($php_code_string_math[0][6],-1)) == 'B' ) $mode = 1;
-                    $php_code_string = 'com_circle(' . $coord[1] . ',' . $php_code_string_math[0][1] . ',' . (!isset($php_code_string_math[0][2]) ? 'NULL' : $php_code_string_math[0][2] ) . ',' . (!isset($php_code_string_math[0][3]) ? '0' : $php_code_string_math[0][3] ) . ',' . (!isset($php_code_string_math[0][4]) ? '360' : $php_code_string_math[0][4] ). ',' . (!isset($php_code_string_math[0][5]) ? '1' : $php_code_string_math[0][5] ) .',' . $mode . ')'; 
-                }                
-                
-                 
+					case 'SUB':
+						$php_code_string = 'function ' . ( strpos( $php_code_string , '(' ) === false ? $php_code_string . '()' : $php_code_string ). '{' . $var_eq . '=func_get_args()' .
+						( $debug_mode ? '/*debug_timer*/; $GLOBALS[\'debug_time\'][] = (microtime(true)-$_SERVER[\'REQUEST_TIME_FLOAT\']).":'. htmlentities($bas_code_string, ENT_QUOTES) . '";/*debug_timer*/ ' : '') ;
+						break;
+					case 'END': // универсальный конец
+						if($php_code_string != '' ) $php_code_string = 'return '. $php_code_string .'; }'; // специальный конец для SUB
+						else $php_code_string = '}' ;
+						break;
+					case 'GOSUB': // изменяет строку кода так, чтобы можно было не декларировать подпрограммы заранее
+						$php_code_string = substr( $php_code_string, 1 ) . ( strpos( $php_code_string , '(' ) === false ? '()' : '');
+						break;
+					case 'RETURN':
+						$php_code_string = 'return ' . $php_code_string;
+						break;
+					case 'DEBUG':
+						$vars = explode (',', $php_code_string);
+						com_debug( $vars );
+						$php_code_string = '';
+						break;
+					case 'STOP':
+						$vars = explode (',', $php_code_string);
+						$php_code_string = 'com_stop(array(' . implode(",", $vars) . "),array('" . implode("','", $vars) . "'))";
+						break;
+					case 'ERASE':
+						$php_code_string = 'unset(' . $php_code_string. ')';
+						break;
+					case 'INCLUDE':
+						$php_code_string = 'eval(com_compile(' . trim( implode('). com_compile(', explode (',', $php_code_string)), ').' ) .'))';
+						break;
+					case 'IF':
+						$php_code_string = 'if(' . $php_code_string . '){'; // многострочная
+						break;
+					case 'ELSEIF':
+						$php_code_string = '} elseif(' . $php_code_string.'){';
+						break;
+					case 'NEXT':
+						$php_code_string = 'endfor';
+						break;
+					case 'EXIT':
+						$php_code_string = 'break '.$php_code_string;
+						break;
+					case 'CONTINUE':
+						$php_code_string = 'continue '.$php_code_string;
+						break;
+					case 'DO':
+						if($php_code_string == '') $php_code_string = 'do { ';
+						else $php_code_string = 'while '.($do_while ? '('. $php_code_string .')' : '(!('. $php_code_string .'))').'{';
+						break;
+					case 'LOOP':
+						if($php_code_string == '') $php_code_string = '}';
+						else $php_code_string = '} while '.($do_while ? '('. $php_code_string .')' : '(!('. $php_code_string .'))');
+						break;
+					case 'SLEEP':
+						$php_code_string = 'usleep(' . $php_code_string .' * 1000000)';
+						break;
+					case 'CLOSE':
+						$php_code_string = 'fclose(' . ltrim($php_code_string, '#') .')';
+					case 'LOCK':
+						$vars = explode(',', $php_code_string);
+						$file = ltrim( array_shift($vars), '#');
+						$mode = array_shift($vars);
+						$mode = strpos( $mode, 'WRITE' ) !== false ? 'TRUE' : (strpos( $mode, 'READ' ) !== false ? 'FALSE' : $mode);
+						$php_code_string = 'com_LOCK(' . $file . ',' . $mode .')';
+						break;
+					case 'UNLOCK':
+						$php_code_string = 'com_UNLOCK(' . ltrim($php_code_string, '#') .')';
+						break;
+					case 'READ':
+						$vars = explode(',', $php_code_string);
+						$file = ltrim( array_shift($vars), '#');
+						$value = array_shift($vars);
+						$length = array_shift($vars);
+						$php_code_string = $value . '=com_READ(' . $file . ($length == '' ? '' : ',' .$length) . ')';   
+						break;
+					case 'WRITE':
+						$php_code_string = 'com_WRITE(' . ltrim($php_code_string, '#') .')';
+						break;
+					case 'GET':
+						$vars = explode(',', $php_code_string);
+						$file = ltrim( array_shift($vars), '#');
+						$value = array_shift($vars);                     
+						$length = array_shift($vars);
+						$php_code_string = $value . '=com_GET(' . $file . ($length == '' ? '' : ','.$length) . ')';   
+						break;
+					case 'PUT':
+						$php_code_string = 'com_PUT(' . ltrim($php_code_string, '#') .')';
+						break;
+					case 'CONNECT':
+						$php_code_string = ltrim( $php_code_string, '$');
+						$php_code_string = preg_replace('/^(CUBRID|DBLIB|FIREBIRD|IBM|INFORMIX|MYSQL|ORACLE|ODBC|PGSQL|SQLITE|MSSQL|4D)/ui','"$1", $2',$php_code_string);
+						$php_code_string = 'com_connect(' . (strtoupper($php_code_string)=='USE' || $php_code_string=='' ? '' : $php_code_string) .')'; 
+						break;
+					case 'DISCONNECT':
+						$php_code_string = 'com_disconnect(' . $php_code_string .')';
+						break;
+					case 'USE':
+						$php_code_string = 'com_use(' . ltrim( $php_code_string, '#').')';
+						break;
+					case 'TRANSACTION':
+						$php_code_string = '$GLOBALS[\'db_use\'][\'connect\']->beginTransaction()';
+						break;
+					case 'COMMIT':
+						$php_code_string = '$GLOBALS[\'db_use\'][\'connect\']->commit()';
+						break;
+					case 'ROLLBACK':
+						$php_code_string = '$GLOBALS[\'db_use\'][\'connect\']->rollBack()';
+						break;
+					case 'COLOR':
+						if( substr($php_code_string,0,2) == '#$' ) $php_code_string = '\'' . substr($php_code_string, 2) . '\'';
+						$php_code_string = 'com_COLOR(' . $php_code_string .')';
+						break;
+					case 'LINE':
+						preg_match_all('/\(((?:(?>[^()]+)|(?R))*)\)/', $php_code_string, $php_code_string_math,  PREG_SET_ORDER, 0);
+						$coord = array();
+						foreach($php_code_string_math as $math) {
+							$php_code_string = str_replace($math[0], '', $php_code_string);
+							$coord[] = $math[1];
+						}
+						$php_code_string = ltrim($php_code_string, '- ');
+						$mode = 0;
+						if( strtoupper(substr($php_code_string,-4)) == ',$BF' ) {
+							$mode = 2;
+							$php_code_string = str_replace(',$BF', '', $php_code_string);
+						}elseif( strtoupper(substr($php_code_string,-3)) == ',$B' ){
+							$mode = 1;
+							$php_code_string = str_replace(',$B', '', $php_code_string);
+						}
+						if( substr($php_code_string,0,3) == ',#$' ) $php_code_string = ',\'' . substr($php_code_string, 3) . '\'';
+						$php_code_string = 'com_line(array(' . implode( ',', $coord ) . ')' . ($php_code_string == '' ? 'NULL' : $php_code_string ) . ',' . $mode . ')'; 
+						break;
+					case 'PSET':
+						preg_match('/\(((?:(?>[^()]+)|(?R))*)\)/', $php_code_string, $coord);
+						$php_code_string = str_replace($coord[0], '', $php_code_string);
+						$coord = $coord[1];
+						if( substr($php_code_string,0,3) == ',#$' ) $php_code_string = ',\'' . substr($php_code_string, 3) . '\'';
+						$php_code_string = 'com_pset(' . $coord . ($php_code_string == '' ? ',NULL' : $php_code_string ) . ')'; 
+						break;
+					case 'PAINT':
+						preg_match('/\(((?:(?>[^()]+)|(?R))*)\)/', $php_code_string, $coord);
+						$php_code_string = str_replace($coord[0], '', $php_code_string);
+						$coord = $coord[1];
+						if( substr($php_code_string,0,3) == ',#$' ) $php_code_string = ',\'' . substr($php_code_string, 3) . '\'';
+						$php_code_string = 'com_paint(' . $coord . ($php_code_string == '' ? ',NULL' : $php_code_string ) . ')'; 
+						break;
+					case 'CIRCLE':
+						preg_match_all('/(?:[^,(]|\([^)]*\))+/', $php_code_string, $php_code_string_math);
+						preg_match('/\((.+)\)/', $php_code_string_math[0][0], $coord);
+						if( isset($php_code_string_math[0][2]) && substr($php_code_string_math[0][2],0,2) == '#$' ) $php_code_string_math[0][2] = '\'' . substr($php_code_string_math[0][2], 2) . '\'';
+						$mode = 0;
+						if( isset($php_code_string_math[0][6]) && strtoupper(substr($php_code_string_math[0][6],-2)) == 'BF' ) $mode = 2;
+						elseif(isset($php_code_string_math[0][6]) && strtoupper(substr($php_code_string_math[0][6],-1)) == 'B' ) $mode = 1;
+						$php_code_string = 'com_circle(' . $coord[1] . ',' . $php_code_string_math[0][1] . ',' . (!isset($php_code_string_math[0][2]) ? 'NULL' : $php_code_string_math[0][2] ) . ',' . (!isset($php_code_string_math[0][3]) ? '0' : $php_code_string_math[0][3] ) . ',' . (!isset($php_code_string_math[0][4]) ? '360' : $php_code_string_math[0][4] ). ',' . (!isset($php_code_string_math[0][5]) ? '1' : $php_code_string_math[0][5] ) .',' . $mode . ')'; 
+						break;
+				}
                 unset($php_code_string, $command, $var_eq);
-            
             }
             //var_export($tree_command);
             // многосекционные команды
             if($for_num > 0) { // была команда for или foreach
                 $var_eq = $tree_command[0]['var_eq']; // изменяемая в цикле переменка
                 $in = false; $to = ''; $step = '1'; // выделим из веток команд TO, STEP
-                foreach($tree_command as $tree_item){
-                    if($tree_item['command'] == 'IN') $in = $tree_item['php_code_string'];
-                    if($tree_item['command'] == 'TO') $to = $tree_item['php_code_string'];
-                    if($tree_item['command'] == 'STEP') $step = $tree_item['php_code_string'];
-                }
+                foreach($tree_command as $tree_item) 
+					switch($tree_item['command']) {
+						case 'IN': $in = $tree_item['php_code_string']; break;
+						case 'TO': $to = $tree_item['php_code_string']; break;
+						case 'STEP': $step = $tree_item['php_code_string']; break;
+					}	
                 if($in !== false) { // есть ветка in - foreach
                     $php_code_string = 'foreach(' . $in . ' as ';
                     if( $to != '' ) $php_code_string .= $to.' => '; // ключ
@@ -726,12 +836,13 @@ function com_compile ($file) {
                     }
                 } elseif( $tree_command[0]['command'] == 'OPEN' ) {
                     $for = ''; $as = ''; $in = ''; $open = ''; // выделим из веток команд FOR, AS, OPEN
-                    foreach($tree_command as $tree_item){
-                        if($tree_item['command'] == 'OPEN') $open = $tree_item['php_code_string'];
-                        if($tree_item['command'] == 'FOR') $for = $tree_item['php_code_string'];
-                        if($tree_item['command'] == 'AS') $as = $tree_item['php_code_string'];
-                        if($tree_item['command'] == 'IN') $in = $tree_item['php_code_string'];
-                    }                    
+                    foreach($tree_command as $tree_item) 
+						switch($tree_item['command']) {
+							case 'OPEN': $open = $tree_item['php_code_string']; break;
+							case 'FOR': $for = $tree_item['php_code_string']; break;
+							case 'AS': $as = $tree_item['php_code_string']; break;
+							case 'IN': $in = $tree_item['php_code_string']; break;
+						}                    
                     $as = ltrim($as, '#'); // fix # - вдруг ктото решит как в vba написать
                     $for = explode(',', trim(str_replace(array('com_', '$'), ' ', $for))); 
                     $lock = ''; $access = 'WRITE';
@@ -744,11 +855,12 @@ function com_compile ($file) {
 
                 } elseif( $tree_command[0]['command'] == 'SCREEN' ) {
                     $as = 'NULL'; $in = 'NULL'; $to = 'NULL'; // выделим из веток команд AS, IN, TO
-                    foreach($tree_command as $tree_item){
-                        if($tree_item['command'] == 'AS') $as = $tree_item['php_code_string'];
-                        if($tree_item['command'] == 'IN') $in = $tree_item['php_code_string'];
-                        if($tree_item['command'] == 'TO') $to = $tree_item['php_code_string'];
-                    }
+                    foreach($tree_command as $tree_item)
+						switch($tree_item['command']) {
+							case 'AS': $as = $tree_item['php_code_string']; break;
+							case 'IN': $in = $tree_item['php_code_string']; break;
+							case 'TO': $to = $tree_item['php_code_string']; break;
+						}
                     $to = explode ('$QUALITY', $to);
                     $quality = isset($to[1]) ? $to[1] : 'NULL';
                     $to = preg_replace(array('/^\$(JPG|JPEG)$/ui', '/^\$GIF$/ui', '/^\$PNG$/ui', '/^\$WEBP$/ui', '/^\$BMP$/ui',), array(1,2,3,4,5), $to[0]);
@@ -922,7 +1034,9 @@ function com_stop( $vars, $names){
 // команда DECLARE
 function com_declare( $vars ){
     global $def_key;
-    $def_key = array_merge ($def_key, $vars );
+	$keys = array();
+	foreach($vars as $var) $keys[$var] = $var;
+    $def_key = array_merge ($def_key, $keys);
 }
 
 /*
@@ -1005,24 +1119,24 @@ function com_CRC32( $str ) {
     return hash("crc32b", $str);
 }
 function com_ENCODE( $str, $flag = "URL", $pass = "") {
-    $flag = strtoupper($flag);
-    if( 'OPENSSL' == $flag ) $str = openssl_encrypt( $str, 'aes128', $pass, 0, substr( md5($pass), -16 ) );
-    if( 'HTML' == $flag ) $str = htmlspecialchars( $str, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5 );
-    if( 'URL' == $flag ) $str = rawurlencode( $str );
-    if( 'BASE64' == $flag ) $str = base64_encode ( $str );
-    if( 'HEX' == $flag ) $str = bin2hex( $str );
-    if( 'SLASH' == $flag ) $str = addslashes( $str );
-    return $str;
+	switch( strtoupper($flag) ) {
+		case 'OPENSSL': return openssl_encrypt( $str, 'aes128', $pass, 0, substr( md5($pass), -16 ) ); 
+		case 'HTML': return htmlspecialchars( $str, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5 );
+		case 'URL': return rawurlencode( $str );
+		case 'BASE64': return base64_encode ( $str );
+		case 'HEX': return bin2hex( $str );
+		case 'SLASH': return addslashes( $str ); 
+	}
 }
 function com_DECODE( $str, $flag = "URL", $pass = "") {
-    $flag = strtoupper($flag);
-    if( 'SLASH' == $flag ) $str = stripslashes( $str );
-    if( 'HEX' == $flag ) $str = hex2bin( $str );
-    if( 'BASE64' == $flag ) $str = base64_decode( $str );
-    if( 'URL' == $flag ) $str = rawurldecode( $str );
-    if( 'HTML' == $flag ) $str = html_entity_decode( $str, ENT_QUOTES |  ENT_HTML5, 'UTF-8');
-    if( 'OPENSSL' == $flag ) $str = openssl_decrypt( $str, 'aes128', $pass, 0,  substr( md5($pass), -16 ) );
-    return $str;
+	switch( strtoupper($flag) ) {
+		case 'SLASH': return stripslashes( $str );
+		case 'HEX': return hex2bin( $str );
+		case 'BASE64': return base64_decode( $str );
+		case 'URL': return rawurldecode( $str );
+		case 'HTML': return html_entity_decode( $str, ENT_QUOTES |  ENT_HTML5, 'UTF-8');
+		case 'OPENSSL': return openssl_decrypt( $str, 'aes128', $pass, 0,  substr( md5($pass), -16 ) );
+    }
 } 
 /*
     Обработка массивов
