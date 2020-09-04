@@ -8,6 +8,4 @@ WBASIC - Акроним Web Beginner's All-purpose Symbolic Instruction Code. В
 
 WBASIC работает на том же комплексе программного обеспечения что и LAMP (Linux + Apache + MySQL + PHP).
 
-
-Сайт проекта с документацией - http://wbasic.ru
-или wiki - https://github.com/vindozo/wbasic/wiki/Введение
+wiki - https://github.com/vindozo/wbasic/wiki/Введение
