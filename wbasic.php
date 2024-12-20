@@ -24,109 +24,128 @@ class TR
 {
 	public static $is_session_start = false; // признак старта сессии для команд работы с сессиями
 
-	public static $def_key = [ // массив предопределенных функций, для переопределения функций и команды DECLARE
-	  'ASC' => 'TR::ASC', 'KOD' => 'TR::ASC', 
-	  'CHR' => 'TR::CHR', 'SIMVOL' => 'TR::CHR', 'SIMVOLI' => 'TR::CHR',
-	  'LEN' => 'mb_strlen', 'DLINA' => 'mb_strlen', 
-	  'MID' => 'TR::MID', 'PODSTROKA' => 'TR::MID', 
-	  'LEFT' => 'TR::LEFT', 'SLEVA' => 'TR::LEFT', 'LEVIE' => 'TR::LEFT', 
-	  'RIGHT' => 'TR::RIGHT', 'SPRAVA' => 'TR::RIGHT', 'PRAVIE' => 'TR::RIGHT', 
-	  'TRIM' => 'TR::TRIM', 'SOKRATI' => 'TR::TRIM',
-	  'LTRIM' => 'TR::LTRIM', 'SOKRATISLEVA' => 'TR::LTRIM',
-	  'RTRIM' => 'TR::RTRIM', 'SOKRATISPRAVA' => 'TR::RTRIM',
-	  'UCASE' => 'mb_strtoupper', 'ZAGLAVNIE' => 'mb_strtoupper',
-	  'LCASE' => 'mb_strtolower', 'STROCHNIE' => 'mb_strtolower',
-	  'INSTR' => 'TR::INSTR', 'POZICIYA' => 'TR::INSTR',
-	  'INSTRREV' => 'TR::INSTRREV', 'POZICIYASPRAVA' => 'TR::INSTRREV',
-	  'SPLIT' => 'TR::SPLIT', 'RAZBEJ' => 'TR::SPLIT',
-	  'JOIN' => 'TR::JOIN', 'SKLEJ' => 'TR::JOIN',
-	  'VAL' => 'TR::VAL', 'CHISLO' => 'TR::VAL',
-	  'STR' => 'TR::STR', 'STROKA' => 'TR::STR',
-	  'REPLACE' => 'TR::REPLACE', 'ZAMENI' => 'TR::REPLACE',
-	  'MD5' => 'md5', 'CRC32' => 'TR::CRC32', 
-	  'HESH5' => 'md5', 'HESH' => 'TR::CRC32', 
-	  'DECODE' => 'TR::decode', 'DEKODIRUJ' => 'TR::decode',
-	  'ENCODE' => 'TR::ENCODE', 'KODIRUJ' => 'TR::ENCODE',
-	  'DIM' => 'TR::DIM', 'MASSIV' => 'TR::DIM',
-	  'KOLICHESTVO' => 'count', 
-	  'LBOUND' => 'TR::LBOUND', 'KLYUCHMINIMUM' => 'TR::LBOUND',
-	  'UBOUND' => 'TR::UBOUND', 'KLYUCHMAKSIMUM' => 'TR::UBOUND',
-	  'MINIMUM' => 'min',
-	  'MAKSIMUM' => 'max',  
-	  'CONCAT' => 'TR::CONCAT', 'SCEPI' => 'TR::CONCAT',
-	  'MERGE' => 'array_merge_recursive', 'SOEDINI' => 'array_merge_recursive',
-	  'DIFF' => 'array_diff', 'VICHTI' => 'array_diff',
-	  'INTERSECT' => 'array_intersect', 'PERESECHENIYA' => 'array_intersect',  
-	  'UNIQUE' => 'TR::UNIQUE', 'UNIKALXNO' => 'TR::UNIQUE',  
-	  
-	  'UNSHIFT' => 'array_unshift', 'VNACHALO' => 'array_unshift',
-	  'SHIFT' => 'array_shift', 'PERVIJ' => 'array_shift',
-	  'POP' => 'array_pop','POSLEDNIJ' => 'array_pop',
-	  'PUSH' => 'array_push','VKONEC' => 'array_push',
-	  'SPLICE' => 'array_splice', 'SRASTI' => 'array_splice',
-	  'SLICE' => 'array_slice', 'SREZ' => 'array_slice',
-
-	  'REVERSE' => 'array_reverse',
-	  'RANDOMISE' => 'TR::RANDOMISE',
-	  'INDEXOF' => 'TR::INDEXOF',
-	  'LASTINDEXOF' => 'TR::LASTINDEXOF',
-	  'GETVALUE' => 'TR::GETVALUE',
-	  'GETKEY' => 'TR::GETKEY',
-	  'SETVALUE' => 'TR::SETVALUE',
-	  
-	  'JSON' => 'TR::JSON',
-	  'SORT' => 'TR::SORT',
-
-	  'KEYS' => 'TR::KEYS',
-	  'SIN' => 'TR::SIN',
-	  'COS' => 'TR::COS',
-	  'TAN' => 'TR::TAN',
-	  'CTG' => 'TR::CTG',
-	  'SEC' => 'TR::SEC',
-	  'COSEC' => 'TR::COSEC',
-	  'ASIN' => 'TR::ASIN',
-	  'ACOS' => 'TR::ACOS',
-	  'ATAN' => 'TR::ATAN',
-	  'ACTG' => 'TR::ACTG',
-	  'ASEC' => 'TR::ASEC',
-	  'ACOSEC' => 'TR::ACOSEC',
-	  'NOTATION' => 'TR::NOTATION',
-	  'CEILING' => 'ceil',
-	  'MOD' => 'TR::MOD',
-	  'DIV' => 'TR::DIV',
-	  'RANDOMIZE' => 'mt_srand',
-	  'RND' => 'TR::rand',
-	  'PLURAL' => 'TR::PLURAL',
-	  'LOC' => 'frell',
-	  'SEEK' => 'fseek',
-	  'EOF' => 'feof',
-	  'LOCK' => 'TR::LOCK',
-	  'UNLOCK' => 'TR::UNLOCK',
-	  'GET' => 'TR::GET',
-	  'PUT' => 'TR::PUT',
-	  'READ' => 'TR::READ',
-	  'WRITE' => 'TR::WRITE',
-	  'FILEEXISTS' => 'TR::FILEEXISTS',
-	  'FILEDATETIME' => 'TR::FILEDATETIME',
-	  'FILELEN' => 'TR::FILELEN',
-	  'FILEATTR' => 'TR::FILEATTR',
-	  'KILL' => 'TR::KILL',
-	  'NAME' => 'TR::NAME',
-	  'FILECOPY' => 'TR::FILECOPY',
-	  'RMDIR' => 'TR::RMDIR',
-	  'MKDIR' => 'TR::MKDIR',
-	  'DIRLEN' => 'TR::DIRLEN',
-	  'DIRSPACE' => 'TR::DIRSPACE',
-	  'DIR' => 'TR::DIR',
-	  'TIMER' => 'TR::TIMER',
-	  'NOW' => 'time',
-	  'DATE' => 'TR::DATE',
-	  'DATEDIFF' => 'TR::DATEDIFF',
-	  'QUERY' => 'TR::QUERY',
-	  'QUOTE' => 'TR::QUOTE',
-	  'LASTINSERTID' => 'TR::LASTINSERTID',
-	  'COLOR' => 'TR::COLOR',
-	  'POINT' => 'TR::POINT',
+	public static $def_key = [
+	    // Базовые операции со строками
+	    'ASC' => 'TR::ASC', 'KOD' => 'TR::ASC', // Возврат кода символа
+	    'CHR' => 'TR::CHR', 'SIMVOL' => 'TR::CHR', 'SIMVOLI' => 'TR::CHR', // Возврат символа по коду
+	    'LEN' => 'mb_strlen', 'DLINA' => 'mb_strlen', // Длина строки
+	    'MID' => 'TR::MID', 'PODSTROKA' => 'TR::MID', // Подстрока
+	    'LEFT' => 'TR::LEFT', 'SLEVA' => 'TR::LEFT', 'LEVIE' => 'TR::LEFT', // Левая часть строки
+	    'RIGHT' => 'TR::RIGHT', 'SPRAVA' => 'TR::RIGHT', 'PRAVIE' => 'TR::RIGHT', // Правая часть строки
+	    'TRIM' => 'TR::TRIM', 'SOKRATI' => 'TR::TRIM', // Удаление пробелов
+	    'LTRIM' => 'TR::LTRIM', 'SOKRATISLEVA' => 'TR::LTRIM', // Удаление пробелов слева
+	    'RTRIM' => 'TR::RTRIM', 'SOKRATISPRAVA' => 'TR::RTRIM', // Удаление пробелов справа
+	    'UCASE' => 'mb_strtoupper', 'ZAGLAVNIE' => 'mb_strtoupper', // Верхний регистр
+	    'LCASE' => 'mb_strtolower', 'STROCHNIE' => 'mb_strtolower', // Нижний регистр
+	    'INSTR' => 'TR::INSTR', 'POZICIYA' => 'TR::INSTR', // Позиция подстроки
+	    'INSTRREV' => 'TR::INSTRREV', 'POZICIYASPRAVA' => 'TR::INSTRREV', // Позиция подстроки справа
+	    'SPLIT' => 'TR::SPLIT', 'RAZBEJ' => 'TR::SPLIT', // Разбиение строки на массив
+	    'JOIN' => 'TR::JOIN', 'SKLEJ' => 'TR::JOIN', // Соединение элементов массива в строку
+	    'REPLACE' => 'TR::REPLACE', 'ZAMENI' => 'TR::REPLACE', // Замена подстроки
+	    'REVERSE' => 'array_reverse', 'OBRATNO' => 'array_reverse', // Переворот строки или массива
+	
+	    // Преобразование типов
+	    'VAL' => 'TR::VAL', 'CHISLO' => 'TR::VAL', // Преобразование строки в число
+	    'STR' => 'TR::STR', 'STROKA' => 'TR::STR', // Преобразование числа в строку
+	
+	    // Хэширование
+	    'MD5' => 'md5', 'HESH5' => 'md5', // Хэширование MD5
+	    'CRC32' => 'TR::CRC32', 'HESH' => 'TR::CRC32', // Хэширование CRC32
+	
+	    // Кодирование/декодирование
+	    'DECODE' => 'TR::decode', 'DEKODIRUJ' => 'TR::decode', // Декодирование
+	    'ENCODE' => 'TR::ENCODE', 'KODIRUJ' => 'TR::ENCODE', // Кодирование
+	
+	    // Работа с массивами
+	    'DIM' => 'TR::DIM', 'MASSIV' => 'TR::DIM', // Определение массива
+	    'KOLICHESTVO' => 'count', 'RAZMER' => 'count', // Количество элементов в массиве
+	    'LBOUND' => 'TR::LBOUND', 'KLYUCHMINIMUM' => 'TR::LBOUND', // Нижний индекс массива
+	    'UBOUND' => 'TR::UBOUND', 'KLYUCHMAKSIMUM' => 'TR::UBOUND', // Верхний индекс массива
+	    'MINIMUM' => 'min', 'NAIMENXSHE' => 'min', // Минимальное значение в массиве
+	    'MAKSIMUM' => 'max', 'NAIBOLXSHE' => 'max', // Максимальное значение в массиве
+	    'CONCAT' => 'TR::CONCAT', 'SCEPI' => 'TR::CONCAT', // Соединение массивов
+	    'MERGE' => 'array_merge_recursive', 'SOEDINI' => 'array_merge_recursive', // Слияние массивов
+	    'DIFF' => 'array_diff', 'VICHTI' => 'array_diff', // Разница между массивами
+	    'INTERSECT' => 'array_intersect', 'PERESECHENIYA' => 'array_intersect', // Пересечение массивов
+	    'UNIQUE' => 'TR::UNIQUE', 'UNIKALXNO' => 'TR::UNIQUE', // Удаление дубликатов
+	
+	    // Изменение массивов
+	    'UNSHIFT' => 'array_unshift', 'VNACHALO' => 'array_unshift', // Добавление элемента в начало массива
+	    'SHIFT' => 'array_shift', 'PERVIJ' => 'array_shift', // Извлечение элемента из начала массива
+	    'POP' => 'array_pop','POSLEDNIJ' => 'array_pop', // Извлечение элемента из конца массива
+	    'PUSH' => 'array_push','VKONEC' => 'array_push', // Добавление элемента в конец массива
+	    'SPLICE' => 'array_splice', 'SRASTI' => 'array_splice', // Изменение массива
+	    'SLICE' => 'array_slice', 'SREZ' => 'array_slice', // Вырезание части массива
+	
+	    // Работа с генератором случайных чисел
+	    'RANDOMIZE' => 'mt_srand', 'SLUCHAJNOE' => 'mt_srand', // Инициализация генератора случайных чисел
+	    'RND' => 'TR::rand', 'SLUCHAINOE' => 'TR::rand', // Генерация случайного числа
+	
+	    // Работа с файлами
+	    'LOC' => 'frell', 'POZICIYA' => 'frell', // Позиция курсора в файле
+	    'SEEK' => 'fseek', 'PEREMESTIT' => 'fseek', // Перемещение курсора в файле
+	    'EOF' => 'feof', 'KONECFAILA' => 'feof', // Конец файла
+	    'LOCK' => 'TR::LOCK', 'BLOKIRUJ' => 'TR::LOCK', // Блокировка файла
+	    'UNLOCK' => 'TR::UNLOCK', 'RAZBLOKIRUJ' => 'TR::UNLOCK', // Разблокировка файла
+	    'GET' => 'TR::GET', 'CHITAI' => 'TR::GET', // Чтение данных из файла
+	    'PUT' => 'TR::PUT', 'ZAPISHI' => 'TR::PUT', // Запись данных в файл
+	    'READ' => 'TR::READ', 'PROCHITAI' => 'TR::READ', // Чтение данных из файла
+	    'WRITE' => 'TR::WRITE', 'ZAPISAT' => 'TR::WRITE', // Запись данных в файл
+	    'FILEEXISTS' => 'TR::FILEEXISTS', 'SUSXESTVUETFAIL' => 'TR::FILEEXISTS', // Проверка существования файла
+	    'FILEDATETIME' => 'TR::FILEDATETIME', 'DATAVREMENIFAILA' => 'TR::FILEDATETIME', // Дата и время изменения файла
+	    'FILELEN' => 'TR::FILELEN', 'RAZMERFAILA' => 'TR::FILELEN', // Размер файла
+	    'FILEATTR' => 'TR::FILEATTR', 'ATRIBUTFAYLA' => 'TR::FILEATTR', // Атрибуты файла
+	    'KILL' => 'TR::KILL', 'UDALI' => 'TR::KILL', // Удаление файла
+	    'NAME' => 'TR::NAME', 'IMYA' => 'TR::NAME', // Имя файла
+	    'FILECOPY' => 'TR::FILECOPY', 'KOPIRUJFAIL' => 'TR::FILECOPY', // Копирование файла
+	    'RMDIR' => 'TR::RMDIR', 'UDALIKATALOG' => 'TR::RMDIR', // Удаление каталога
+	    'MKDIR' => 'TR::MKDIR', 'SOZDAIKATALOG' => 'TR::MKDIR', // Создание каталога
+	    'DIRLEN' => 'TR::DIRLEN', 'RAZMERKATALOGA' => 'TR::DIRLEN', // Размер каталога
+	    'DIRSPACE' => 'TR::DIRSPACE', 'SVOBODNOEMESTOVKATALOGE' => 'TR::DIRSPACE', // Свободное место в каталоге
+	    'DIR' => 'TR::DIR', 'SPISOKFAILOV' => 'TR::DIR', // Список файлов в каталоге
+	
+	    // Работа с датой и временем
+	    'TIMER' => 'TR::TIMER', 'VREMYA' => 'TR::TIMER', // Текущее время в миллисекундах
+	    'NOW' => 'time', 'TEPER' => 'time', // Текущее время в секундах
+	    'DATE' => 'TR::DATE', 'DATA' => 'TR::DATE', // Текущая дата
+	    'DATEDIFF' => 'TR::DATEDIFF', 'RAZNICADAT' => 'TR::DATEDIFF', // Разница между датами
+	
+	    // Работа с базой данных
+	    'QUERY' => 'TR::QUERY', 'ZAPROS' => 'TR::QUERY', // Выполнение SQL-запроса
+	    'QUOTE' => 'TR::QUOTE', 'ESC' => 'TR::QUOTE', // Экранирование строк для SQL-запросов
+	    'LASTINSERTID' => 'TR::LASTINSERTID', 'POSLEDNIJID' => 'TR::LASTINSERTID', // ID последней вставленной записи
+	
+	    // Работа с графическим интерфейсом
+	    'COLOR' => 'TR::COLOR', 'CVET' => 'TR::COLOR', // Установка цвета
+	    'POINT' => 'TR::POINT', 'TOCHKA' => 'TR::POINT', // Установка позиции курсора
+	
+	    // Другие команды
+	    'RANDOMISE' => 'TR::RANDOMISE', 'SLUCHAJNOE' => 'TR::RANDOMISE', // Инициализация генератора случайных чисел
+	    'INDEXOF' => 'TR::INDEXOF', 'NAITI' => 'TR::INDEXOF', // Позиция подстроки
+	    'LASTINDEXOF' => 'TR::LASTINDEXOF', 'NAITISPRAVA' => 'TR::LASTINDEXOF', // Позиция подстроки справа
+	    'GETVALUE' => 'TR::GETVALUE', 'ZNACHENIE' => 'TR::GETVALUE', // Получение значения из массива
+	    'GETKEY' => 'TR::GETKEY', 'KLYUCH' => 'TR::GETKEY', // Получение ключа из массива
+	    'SETVALUE' => 'TR::SETVALUE', 'USTANOVIT' => 'TR::SETVALUE', // Установка значения в массив
+	    'JSON' => 'TR::JSON', 'JSON' => 'TR::JSON', // Преобразование в JSON
+	    'SORT' => 'TR::SORT', 'SORTIRUJ' => 'TR::SORT', // Сортировка массива
+	    'KEYS' => 'TR::KEYS', 'KLYCHI' => 'TR::KEYS', // Ключи массива
+	    'SIN' => 'TR::SIN', 'SINUS' => 'TR::SIN', // Синус
+	    'COS' => 'TR::COS', 'KOSINUS' => 'TR::COS', // Косинус
+	    'TAN' => 'TR::TAN', 'TANGENS' => 'TR::TAN', // Тангенс
+	    'CTG' => 'TR::CTG', 'KOTANGENS' => 'TR::CTG', // Котангенс
+	    'SEC' => 'TR::SEC', 'SEKAN' => 'TR::SEC', // Секанс
+	    'COSEC' => 'TR::COSEC', 'KOSEKANS' => 'TR::COSEC', // Косеканс
+	    'ASIN' => 'TR::ASIN', 'ARCSINUS' => 'TR::ASIN', // Арксинус
+	    'ACOS' => 'TR::ACOS', 'ARCKOSINUS' => 'TR::ACOS', // Арккосинус
+	    'ATAN' => 'TR::ATAN', 'ARKTANGENS' => 'TR::ATAN', // Арктангенс
+	    'ACTG' => 'TR::ACTG', 'ARKKOTANGENS' => 'TR::ACTG', // Арккотангенс
+	    'ASEC' => 'TR::ASEC', 'ARKSEKAN' => 'TR::ASEC', // Арксеканс
+	    'ACOSEC' => 'TR::ACOSEC', 'ARKKOSEKANS' => 'TR::ACOSEC', // Арккосеканс
+	    'NOTATION' => 'TR::NOTATION', 'NOTACIYA' => 'TR::NOTATION', // Научная нотация
+	    'CEILING' => 'ceil', 'OKRUGLIT' => 'ceil', // Округление вверх
+	    'MOD' => 'TR::MOD', 'OSTATOK' => 'TR::MOD', // Остаток от деления
+	    'DIV' => 'TR::DIV', 'DELENIE' => 'TR::DIV', // Целочисленное деление
+	    'PLURAL' => 'TR::PLURAL', 'MNOZHESTVENNOE' => 'TR::PLURAL', // Множественное число
 	];
 
 	public static $script_filename = '/index.bas'; //скрипт по умолчанию
